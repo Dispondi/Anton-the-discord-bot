@@ -25,6 +25,12 @@ public class Launcher {
                 .build()
                 .awaitReady();
 
-        
+        // creating slash commands if not exists
+        AntonBot bot = new AntonBot(api);
+        bot.SlashCommandsBrief();
+
+        // registering listeners
+        ListenerManager listenerManager = new ListenerManager();
+        listenerManager.registerAllListeners(api);
     }
 }
