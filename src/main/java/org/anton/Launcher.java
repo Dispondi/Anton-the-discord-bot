@@ -28,6 +28,7 @@ public class Launcher {
         // creating slash commands if not exists
         AntonBot bot = new AntonBot(api);
         bot.SlashCommandsBrief();
+        // bot.deleteSlashCommands();
 
         // registering listeners
         ListenerManager listenerManager = new ListenerManager();

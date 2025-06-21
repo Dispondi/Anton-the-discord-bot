@@ -3,17 +3,14 @@ package org.anton.bot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.exceptions.ContextException;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.Command;
-import net.dv8tion.jda.api.requests.RestAction;
 import org.anton.listeners.ListenerManager;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.function.Consumer;
 
 public class AntonBot extends ListenerAdapter {
 
@@ -27,6 +24,11 @@ public class AntonBot extends ListenerAdapter {
     public AntonBot(JDA api) {
         this.api = api;
         this.slashCommands = new ArrayList<>();
+        updateSlashCommandsList();
+    }
+
+    private void updateSlashCommandsList() {
+        slashCommands.clear();
 
         try {
             this.slashCommands.addAll(getSlashCommandsFromAPI(api));
@@ -54,43 +56,40 @@ public class AntonBot extends ListenerAdapter {
         }
     }
 
+    // TODO: loggin is async, updateSlashCommandsList() is happening before createSlashCommandIfNotExists() will be done. FIX IT
     public void SlashCommandsBrief() {
         logger.info("Slash commands briefing");
+        logger.info("Slash command list size BEFORE briefing: {}", slashCommands.size());
 
-        api.retrieveCommands().queue(new Consumer<List<Command>>() {
-            @Override
-            public void accept(List<Command> commands) {
+        logger.debug("Briefing /{} started", ListenerManager.SlashCommandsData.OPTIONS.getName());
+        createSlashCommandIfNotExists(ListenerManager.SlashCommandsData.OPTIONS);
 
-            }
-        }, new Consumer<Throwable>() {
-            @Override
-            public void accept(Throwable throwable) {
-                logger.error("Failed to load ");
-            }
-        });
-        createSlashCommand(ListenerManager.SlashCommandsData.OPTIONS);
+        updateSlashCommandsList();
+        logger.info("Slash command list size AFTER briefing: {}", slashCommands.size());
     }
 
-    private void createSlashCommand(ListenerManager.SlashCommandsData command) {
+    private void createSlashCommandIfNotExists(ListenerManager.SlashCommandsData command) {
         // creates if not exists
         Runnable callback = () -> api.upsertCommand(command.getName(), command.getDesc())
                 .queue(unused -> logger.debug("Slash command '{}' created successfully", command.name()), // logging
                         throwable -> logger.error("Exception while creating slash command", throwable));
 
-        isCommandExists(command, callback); // function's entry point
+        isCommandExists(command, callback); // method's entry point
     }
 
     private void isCommandExists(ListenerManager.SlashCommandsData commandData, Runnable ifNotExistsCallback) {
         logger.debug("Checking is slash command '{}' exists", commandData.getName());
-        RestAction<Command> request = api.retrieveCommandById(commandData.getTempId());
-        request.queue(command -> { // success
-                    logger.debug("Response received successfully. Slash command '{}' is exists", command.getName());
-                },
-                throwable -> { // failure
-                    if (throwable.getCause() instanceof ContextException) {
-                        logger.debug("Slash command '{}' not exists. Creating.", commandData.getName());
-                        ifNotExistsCallback.run();
-                    } else logger.error("Exception while checking is slash command exists", throwable);
-                });
+
+        // exists
+        for (Command c : slashCommands) {
+            if (c.getName().equals(commandData.getName())) {
+                logger.debug("Response received successfully. Slash command '{}' is exists", commandData.getName());
+                return;
+            }
+        }
+
+        // not exists
+        logger.debug("Slash command '{}' not exists. Creating.", commandData.getName());
+        ifNotExistsCallback.run();
     }
 }

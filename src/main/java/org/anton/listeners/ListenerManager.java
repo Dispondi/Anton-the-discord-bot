@@ -15,20 +15,14 @@ public class ListenerManager {
     }
 
     public enum SlashCommandsData {
-        OPTIONS ("0", "options", "Вызвать меню настроек");
+        OPTIONS ("options", "Вызвать меню настроек");
 
-        private final String tempId;
         private final String name;
         private final String desc;
 
-        SlashCommandsData(String tempId, String name, String desc) {
+        SlashCommandsData(String name, String desc) {
             this.name = name;
             this.desc = desc;
-            this.tempId = tempId;
-        }
-
-        public String getTempId() {
-            return tempId;
         }
 
         public String getName() {
