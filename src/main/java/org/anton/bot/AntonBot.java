@@ -1,5 +1,6 @@
 package org.anton.bot;
 
+import org.anton.commands.slash.AntonSlashCommandsData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import net.dv8tion.jda.api.JDA;
@@ -34,7 +35,7 @@ public class AntonBot extends ListenerAdapter {
             this.slashCommands.addAll(getSlashCommandsFromAPI(api));
             logger.debug("Slash commands list filled successfully");
         } catch (Exception e) {
-            logger.error("Failed to get slash commands", e);
+            logger.error("Failed to update slash commands", e);
         }
     }
 
@@ -56,19 +57,19 @@ public class AntonBot extends ListenerAdapter {
         }
     }
 
-    // TODO: loggin is async, updateSlashCommandsList() is happening before createSlashCommandIfNotExists() will be done. FIX IT
+    // TODO: login is async, updateSlashCommandsList() is happening before createSlashCommandIfNotExists() will be done. FIX IT
     public void SlashCommandsBrief() {
         logger.info("Slash commands briefing");
         logger.info("Slash command list size BEFORE briefing: {}", slashCommands.size());
 
-        logger.debug("Briefing /{} started", ListenerManager.SlashCommandsData.OPTIONS.getName());
-        createSlashCommandIfNotExists(ListenerManager.SlashCommandsData.OPTIONS);
+        logger.debug("Briefing /{} started", AntonSlashCommandsData.OPTIONS.getName());
+        createSlashCommandIfNotExists(AntonSlashCommandsData.OPTIONS);
 
         updateSlashCommandsList();
         logger.info("Slash command list size AFTER briefing: {}", slashCommands.size());
     }
 
-    private void createSlashCommandIfNotExists(ListenerManager.SlashCommandsData command) {
+    private void createSlashCommandIfNotExists(AntonSlashCommandsData command) {
         // creates if not exists
         Runnable callback = () -> api.upsertCommand(command.getName(), command.getDesc())
                 .queue(unused -> logger.debug("Slash command '{}' created successfully", command.name()), // logging
@@ -77,7 +78,7 @@ public class AntonBot extends ListenerAdapter {
         isCommandExists(command, callback); // method's entry point
     }
 
-    private void isCommandExists(ListenerManager.SlashCommandsData commandData, Runnable ifNotExistsCallback) {
+    private void isCommandExists(AntonSlashCommandsData commandData, Runnable ifNotExistsCallback) {
         logger.debug("Checking is slash command '{}' exists", commandData.getName());
 
         // exists

@@ -31,7 +31,7 @@ public class Launcher {
         // bot.deleteSlashCommands();
 
         // registering listeners
-        ListenerManager listenerManager = new ListenerManager();
-        listenerManager.registerAllListeners(api);
+        ListenerManager listenerManager = new ListenerManager(api);
+        listenerManager.registerAllListeners();
     }
 }
