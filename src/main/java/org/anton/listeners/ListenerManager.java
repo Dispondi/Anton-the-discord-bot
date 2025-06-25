@@ -1,19 +1,39 @@
 package org.anton.listeners;
 
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
-public class ListenerManager {
+import java.util.ArrayList;
 
-    private final JDA api;
+public final class ListenerManager {
 
-    private final SlashListener slashListener;
+    private final ArrayList<ListenerAdapter> listeners;
 
-    public ListenerManager(JDA api) {
-        this.api = api;
-        slashListener = new SlashListener(api);
+    private static volatile ListenerManager INSTANCE;
+
+    private ListenerManager() {
+        listeners = new ArrayList<>();
     }
 
-    public void registerAllListeners() {
-        api.addEventListener(slashListener);
+    public static ListenerManager getInstance() {
+        if (INSTANCE == null) {
+            synchronized (ListenerManager.class) {
+                if (INSTANCE == null) INSTANCE = new ListenerManager();
+            }
+        }
+
+        return INSTANCE;
+    }
+
+    public void registerAllListeners(JDA api) {
+        api.addEventListener(listeners);
+    }
+
+    public void putListener(ListenerAdapter listener) {
+        listeners.add(listener);
+    }
+
+    public ArrayList<ListenerAdapter> getListeners() {
+        return listeners;
     }
 }

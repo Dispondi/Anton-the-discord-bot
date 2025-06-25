@@ -3,21 +3,22 @@ package org.anton.listeners;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import org.anton.commands.slash.OptionsSlashCommand;
-import org.anton.commands.slash.SlashCommandFactory;
+import org.anton.utils.registry.RegistryKeeper;
+import org.anton.utils.registry.interaction.commands.SlashCommandsRegistry;
+import org.jetbrains.annotations.NotNull;
 
 public class SlashListener extends ListenerAdapter {
 
-    private SlashCommandFactory commandFactory;
+    private final JDA api;
 
-    SlashListener(JDA api) {
-        commandFactory = new SlashCommandFactory(api);
+    private SlashCommandsRegistry registry;
+
+    public SlashListener(JDA api) {
+        this.api = api;
     }
 
     @Override
-    public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
+    public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
 
     }
-
-
 }

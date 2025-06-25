@@ -6,11 +6,15 @@ import net.dv8tion.jda.api.requests.GatewayIntent;
 import org.anton.bot.AntonBot;
 import org.anton.bot.TokenKeeper;
 import org.anton.listeners.ListenerManager;
+import org.anton.listeners.SlashListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Launcher {
 
     private static final String BOT_TOKEN = TokenKeeper.BOT_TOKEN.getToken();
     private static final String TAG = "Launcher";
+    private static final Logger LOGGER = LoggerFactory.getLogger(TAG);
 
     public static void main(String[] args) throws InterruptedException {
 
@@ -31,7 +35,8 @@ public class Launcher {
         // bot.deleteSlashCommands();
 
         // registering listeners
-        ListenerManager listenerManager = new ListenerManager(api);
-        listenerManager.registerAllListeners();
+        ListenerManager listenerManager = ListenerManager.getInstance();
+        listenerManager.putListener(new SlashListener(api));
+        listenerManager.registerAllListeners(api);
     }
 }
